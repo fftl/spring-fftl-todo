@@ -17,6 +17,8 @@ public class Routine {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int routineId;
 
+    private String routineName;
+
     @OneToMany(mappedBy = "routine")
     private List<Todo> todoList;
 
