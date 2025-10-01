@@ -1,0 +1,64 @@
+name: Publish Docker image to GHCR
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  packages: write   # GHCR 푸시 권한
+  id-token: write
+
+concurrency:
+  group: ghcr-publish-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 로워케이스 이미지명 생성 (GHCR는 소문자 권장)
+      - name: spring-fftl-todo
+        id: prep
+        run: |
+          REPO_LC=$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE=ghcr.io/${REPO_LC}" >> $GITHUB_OUTPUT
+          echo "SHA=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+
+      # GHCR 로그인 (GITHUB_TOKEN 활용)
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 메타데이터(태그, 라벨) 자동 생성
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.prep.outputs.IMAGE }}
+          tags: |
+            type=raw,value=latest
+            type=sha,format=long
+            type=ref,event=tag
+
+      # 빌드 & 푸시 (Dockerfile 사용)
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      # (선택) 푸시 후 요약
+      - name: Summary
+        run: |
+          echo "Pushed image(s):"
+          echo "${{ steps.meta.outputs.tags }}"
