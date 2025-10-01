@@ -3,7 +3,7 @@ FROM gradle:8.8-jdk21-alpine AS build
 WORKDIR /workspace
 
 # 캐시 최적화: 의존성 먼저
-COPY gradlew settings.gradle build.gradle ./
+COPY gradlew settings.gradle.kts build.gradle.kts ./
 COPY gradle gradle
 RUN ./gradlew --version
 
