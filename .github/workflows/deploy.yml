@@ -68,11 +68,12 @@ jobs:
           printf 'RAW:[%s]\n' "${{ secrets.SERVER_HOST }}"
           printf '%s' "${{ secrets.SERVER_HOST }}" | od -An -t x1
 
-      - name: Preflight TCP check
+      - name: Prepare SSH key file
         run: |
-          sudo apt-get update -y
-          sudo apt-get install -y netcat-openbsd
-          nc -vz ${{ secrets.SERVER_HOST }} 22
+          umask 077
+          printf '%s\n' "${{ secrets.SERVER_SSH_KEY }}" | tr -d '\r' > id_ed25519
+          ssh-keygen -lf id_ed25519   # fingerprint 확인
+          ssh-keygen -y -f id_ed25519 # 공개키 확인
 
       # 배포서버에 이벤트 전달
       - name: Deploy via SSH
@@ -80,5 +81,5 @@ jobs:
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          key_path: id_ed25519         # ← 여기!
           script: /opt/fftl-todo/deploy.sh
