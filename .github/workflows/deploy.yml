@@ -63,6 +63,12 @@ jobs:
           echo "Pushed image(s):"
           echo "${{ steps.meta.outputs.tags }}"
 
+      - name: Preflight TCP check
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y netcat-openbsd
+          nc -vz ${{ secrets.SERVER_HOST }} 22
+
       # 배포서버에 이벤트 전달
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
