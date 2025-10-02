@@ -63,6 +63,11 @@ jobs:
           echo "Pushed image(s):"
           echo "${{ steps.meta.outputs.tags }}"
 
+      - name: Inspect SERVER_HOST exact bytes
+        run: |
+          printf 'RAW:[%s]\n' "${{ secrets.SERVER_HOST }}"
+          printf '%s' "${{ secrets.SERVER_HOST }}" | od -An -t x1
+
       - name: Preflight TCP check
         run: |
           sudo apt-get update -y
