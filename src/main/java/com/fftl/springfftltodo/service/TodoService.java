@@ -7,6 +7,7 @@ import com.fftl.springfftltodo.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -21,6 +22,13 @@ public class TodoService {
 
     public List<TodoResponse> readAll(Member member){
         List<Todo> todos = todoRepository.findAllByMember(member);
+        return todos.stream()
+                .map(TodoResponse::fromEntity)
+                .toList();
+    }
+
+    public List<TodoResponse> readAllDay(Member member, LocalDate date){
+        List<Todo> todos = todoRepository.findAllByMemberAndDate(member, date);
         return todos.stream()
                 .map(TodoResponse::fromEntity)
                 .toList();

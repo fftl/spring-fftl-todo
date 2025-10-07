@@ -2,9 +2,12 @@ package com.fftl.springfftltodo.controller;
 
 import com.fftl.springfftltodo.Entity.Member;
 import com.fftl.springfftltodo.config.jwt.JwtProvider;
+import com.fftl.springfftltodo.dto.EmailValidResponse;
 import com.fftl.springfftltodo.dto.LoginRequest;
 import com.fftl.springfftltodo.dto.LoginResponse;
 import com.fftl.springfftltodo.dto.SignUpRequest;
+import com.fftl.springfftltodo.service.EmailValidService;
+import com.fftl.springfftltodo.service.MailService;
 import com.fftl.springfftltodo.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,7 +20,14 @@ public class MemberController {
 
     private final MemberService memberService;
     private final JwtProvider jwtProvider;
+    private final MailService mailService;
+    private final EmailValidService emailValidService;
 
+    /**
+     * 멤버 검색
+     * @param username
+     * @return
+     */
     @GetMapping("/member/{username}")
     public ResponseEntity<String> getMember(@PathVariable("username") String username){
         Member member = memberService.readUsername(username);
@@ -30,6 +40,11 @@ public class MemberController {
         return new ResponseEntity<>(getUsername, HttpStatus.OK);
     }
 
+    /**
+     * 멤버 가입
+     * @param signUpRequest
+     * @return
+     */
     @PostMapping("/member")
     public ResponseEntity<?> saveMember(@RequestBody SignUpRequest signUpRequest) {
 
@@ -41,6 +56,11 @@ public class MemberController {
         return new ResponseEntity<>(signUpRequest.getUsername(), HttpStatus.OK);
     }
 
+    /**
+     * 멤버 로그인
+     * @param loginRequest
+     * @return
+     */
     @PostMapping("/member/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
 
@@ -65,5 +85,17 @@ public class MemberController {
         }
     }
 
+    @PostMapping("/member/email")
+    public ResponseEntity<?> sendEmail(@RequestParam(name = "email") String email){
+        System.out.println("이메일 출력 >>"+email);
+        mailService.sendMimeMessage(email);
+        return new ResponseEntity<>(email, HttpStatus.OK);
+    }
 
+    @PostMapping("/member/email/valid")
+    public ResponseEntity<EmailValidResponse> validEmail(@RequestParam(name = "email") String email){
+        System.out.println("이메일 출력 >>"+ email);
+        EmailValidResponse validate = emailValidService.validate(email);
+        return new ResponseEntity<>(validate, HttpStatus.OK);
+    }
 }

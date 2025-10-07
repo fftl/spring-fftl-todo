@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Table(name="todo", indexes = {
+        @Index(name="idx__member__date", columnList = "member_id, date")
+})
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
