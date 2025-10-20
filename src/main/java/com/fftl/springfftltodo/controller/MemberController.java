@@ -2,18 +2,17 @@ package com.fftl.springfftltodo.controller;
 
 import com.fftl.springfftltodo.Entity.Member;
 import com.fftl.springfftltodo.config.jwt.JwtProvider;
-import com.fftl.springfftltodo.dto.EmailValidResponse;
-import com.fftl.springfftltodo.dto.LoginRequest;
-import com.fftl.springfftltodo.dto.LoginResponse;
-import com.fftl.springfftltodo.dto.SignUpRequest;
+import com.fftl.springfftltodo.dto.*;
 import com.fftl.springfftltodo.service.EmailValidService;
 import com.fftl.springfftltodo.service.MailService;
 import com.fftl.springfftltodo.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@RequestMapping("/member")
 @RequiredArgsConstructor
 @RestController
 public class MemberController {
@@ -28,16 +27,28 @@ public class MemberController {
      * @param username
      * @return
      */
-    @GetMapping("/member/{username}")
-    public ResponseEntity<String> getMember(@PathVariable("username") String username){
+    @GetMapping("/{username}")
+    public ResponseEntity<ApiResponse<String>> getMember(@PathVariable("username") String username){
         Member member = memberService.readUsername(username);
         String getUsername = null;
+        String msg = "true";
+        HttpStatusCode status = null;
+
         if(member==null){
-            getUsername = "유저가 존재하지 않습니다";
+            msg = "유저가 존재하지 않습니다";
+            status = HttpStatus.NOT_FOUND;
         } else {
             getUsername = member.getUsername();
+            status = HttpStatus.OK;
         }
-        return new ResponseEntity<>(getUsername, HttpStatus.OK);
+
+        return new ResponseEntity<>(
+                ApiResponse.<String>builder()
+                        .status(status.value())
+                        .message(msg)
+                        .data(getUsername)
+                        .build(),
+                status);
     }
 
     /**
@@ -45,7 +56,7 @@ public class MemberController {
      * @param signUpRequest
      * @return
      */
-    @PostMapping("/member")
+    @PostMapping()
     public ResponseEntity<?> saveMember(@RequestBody SignUpRequest signUpRequest) {
 
         //username을 통한 Member확인
@@ -61,7 +72,7 @@ public class MemberController {
      * @param loginRequest
      * @return
      */
-    @PostMapping("/member/login")
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
 
         //username을 통한 Member확인
@@ -85,14 +96,14 @@ public class MemberController {
         }
     }
 
-    @PostMapping("/member/email")
+    @PostMapping("/email")
     public ResponseEntity<?> sendEmail(@RequestParam(name = "email") String email){
         System.out.println("이메일 출력 >>"+email);
         mailService.sendMimeMessage(email);
         return new ResponseEntity<>(email, HttpStatus.OK);
     }
 
-    @PostMapping("/member/email/valid")
+    @PostMapping("/email/valid")
     public ResponseEntity<EmailValidResponse> validEmail(@RequestParam(name = "email") String email){
         System.out.println("이메일 출력 >>"+ email);
         EmailValidResponse validate = emailValidService.validate(email);

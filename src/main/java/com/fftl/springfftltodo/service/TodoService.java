@@ -44,4 +44,14 @@ public class TodoService {
             return false;
         }
     }
+
+    public boolean delete(int todoId){
+        Todo todo = todoRepository.findById(todoId).orElse(null);
+        if(todo != null){
+            todoRepository.delete(todo);
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

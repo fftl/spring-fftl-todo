@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@RequestMapping("/todo")
 @RequiredArgsConstructor
 @RestController
 public class TodoController {
@@ -32,7 +33,7 @@ public class TodoController {
      * @param memberId
      * @return
      */
-    @PostMapping("/todo")
+    @PostMapping()
     public ResponseEntity<?> save(@RequestBody Map<String, String> map, @AuthenticationPrincipal Integer memberId){
         Member member = memberService.readMemberId(memberId);
         System.out.println(map.get("text"));
@@ -46,7 +47,7 @@ public class TodoController {
      * @param memberId
      * @return
      */
-    @PostMapping("/todo/check")
+    @PostMapping("/check")
     public ResponseEntity<?> checkTodo(@RequestBody Map<String, Integer> map, @AuthenticationPrincipal Integer memberId){
         boolean check = todoService.checkTodo(map.get("todoId"));
         return new ResponseEntity<>(check, HttpStatus.OK);
@@ -57,14 +58,14 @@ public class TodoController {
      * @param memberId
      * @return
      */
-    @GetMapping("/todo")
+    @GetMapping()
     public ResponseEntity<?> getAll(@AuthenticationPrincipal Integer memberId){
         Member member = memberService.readMemberId(memberId);
         List<TodoResponse> todoResponses = todoService.readAll(member);
         return new ResponseEntity<>(todoResponses, HttpStatus.OK);
     }
 
-    @GetMapping("/todo/day")
+    @GetMapping("/day")
     public ResponseEntity<?> getOneDay(@AuthenticationPrincipal Integer memberId, @RequestParam(name = "date") LocalDate date){
         Member member = memberService.readMemberId(memberId);
         List<TodoResponse> todoResponses = todoService.readAllDay(member, date);

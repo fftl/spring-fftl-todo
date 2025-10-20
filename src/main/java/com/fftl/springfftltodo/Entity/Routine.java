@@ -18,11 +18,15 @@ public class Routine {
     private int routineId;
 
     private String routineName;
-
-    @OneToMany(mappedBy = "routine")
-    private List<Todo> todoList;
+    private List<String> todoList;
 
     @ManyToOne
     @JoinColumn(name = "member_id")
     private Member member;
+
+    public Routine(String routineName, List<String> todoList, Member member){
+        this.routineName = routineName;
+        this.todoList = todoList;
+        this.member = member;
+    }
 }
