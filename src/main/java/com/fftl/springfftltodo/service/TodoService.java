@@ -2,6 +2,8 @@ package com.fftl.springfftltodo.service;
 
 import com.fftl.springfftltodo.Entity.Member;
 import com.fftl.springfftltodo.Entity.Todo;
+import com.fftl.springfftltodo.config.error.BusinessException;
+import com.fftl.springfftltodo.config.error.ErrorCode;
 import com.fftl.springfftltodo.dto.TodoResponse;
 import com.fftl.springfftltodo.repository.TodoRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,23 +37,14 @@ public class TodoService {
     }
 
     public boolean checkTodo(int todoId){
-        Todo todo = todoRepository.findById(todoId).orElse(null);
-        if(todo != null){
-            todo.checkTodo();
-            todoRepository.save(todo);
-            return true;
-        } else {
-            return false;
-        }
+        Todo todo = todoRepository.findById(todoId).orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND));
+        todoRepository.save(todo);
+        return true;
     }
 
     public boolean delete(int todoId){
-        Todo todo = todoRepository.findById(todoId).orElse(null);
-        if(todo != null){
-            todoRepository.delete(todo);
-            return true;
-        } else {
-            return false;
-        }
+        Todo todo = todoRepository.findById(todoId).orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND));
+        todoRepository.delete(todo);
+        return true;
     }
 }

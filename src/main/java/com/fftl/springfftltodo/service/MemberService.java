@@ -1,6 +1,8 @@
 package com.fftl.springfftltodo.service;
 
 import com.fftl.springfftltodo.Entity.Member;
+import com.fftl.springfftltodo.config.error.BusinessException;
+import com.fftl.springfftltodo.config.error.ErrorCode;
 import com.fftl.springfftltodo.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,18 +23,16 @@ public class MemberService {
         return memberRepository.save(new Member(username, passwordEncoder.encode(password)));
     }
 
-    public Member readUsername(String username){
-        Member member = memberRepository.findByUsername(username);
-        if(member != null) return member;
+    public boolean existUsername(String username){
+        return memberRepository.existsByUsername(username);
+    }
 
-        return null; //TODO 에러 처리 필요
+    public Member readUsername(String username){
+        return memberRepository.findByUsername(username).orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND));
     }
 
     public Member readMemberId(int memberId){
-        Member member = memberRepository.findById(memberId).orElse(null);
-        if(member != null) return member;
-
-        return null; //TODO 에러 처리 필요
+        return memberRepository.findById(memberId).orElseThrow(() -> new BusinessException(ErrorCode.DATA_NOT_FOUND));
     }
 
     public void updateRefresh(Member member, String refresh){

@@ -1,6 +1,7 @@
 package com.fftl.springfftltodo.controller;
 
 import com.fftl.springfftltodo.Entity.Member;
+import com.fftl.springfftltodo.config.error.ErrorCode;
 import com.fftl.springfftltodo.config.jwt.JwtProvider;
 import com.fftl.springfftltodo.dto.*;
 import com.fftl.springfftltodo.service.EmailValidService;
@@ -28,27 +29,8 @@ public class MemberController {
      * @return
      */
     @GetMapping("/{username}")
-    public ResponseEntity<ApiResponse<String>> getMember(@PathVariable("username") String username){
-        Member member = memberService.readUsername(username);
-        String getUsername = null;
-        String msg = "true";
-        HttpStatusCode status = null;
-
-        if(member==null){
-            msg = "유저가 존재하지 않습니다";
-            status = HttpStatus.NOT_FOUND;
-        } else {
-            getUsername = member.getUsername();
-            status = HttpStatus.OK;
-        }
-
-        return new ResponseEntity<>(
-                ApiResponse.<String>builder()
-                        .status(status.value())
-                        .message(msg)
-                        .data(getUsername)
-                        .build(),
-                status);
+    public ApiResponse<Boolean> getMember(@PathVariable("username") String username){
+        return ApiResponse.success(memberService.existUsername(username));
     }
 
     /**
@@ -57,14 +39,13 @@ public class MemberController {
      * @return
      */
     @PostMapping()
-    public ResponseEntity<?> saveMember(@RequestBody SignUpRequest signUpRequest) {
-
-        //username을 통한 Member확인
-        Member findMember = memberService.readUsername(signUpRequest.getUsername());
-        if(findMember==null){
+    public ApiResponse<?> saveMember(@RequestBody SignUpRequest signUpRequest) {
+        if(!memberService.existUsername(signUpRequest.getUsername())){
             Member member = memberService.create(signUpRequest.getUsername(), signUpRequest.getPassword());
+            return ApiResponse.success(member.getUsername());
+        } else {
+            return ApiResponse.fail(ErrorCode.DUPLICATE_RESOURCE.getStatus(), "이미 존재하는 유저입니다.");
         }
-        return new ResponseEntity<>(signUpRequest.getUsername(), HttpStatus.OK);
     }
 
     /**
@@ -73,26 +54,21 @@ public class MemberController {
      * @return
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ApiResponse<?> login(@RequestBody LoginRequest loginRequest) {
 
         //username을 통한 Member확인
         Member member = memberService.readUsername(loginRequest.getUsername());
 
-        if(member == null){
-            return new ResponseEntity<>("잘못된 정보입니다.", HttpStatus.OK);
+        if(memberService.login(member, loginRequest.getPassword())){
+            String access = jwtProvider.createAccessToken(member.getMemberId(), loginRequest.getUsername());
+            String refresh = jwtProvider.createRefreshToken(member.getMemberId(), loginRequest.getUsername());
 
+            memberService.updateRefresh(member, refresh);
+
+            return ApiResponse.success(new LoginResponse(loginRequest.getUsername(), access, refresh));
         } else {
-            if(memberService.login(member, loginRequest.getPassword())){
-                String access = jwtProvider.createAccessToken(member.getMemberId(), loginRequest.getUsername());
-                String refresh = jwtProvider.createRefreshToken(member.getMemberId(), loginRequest.getUsername());
 
-                memberService.updateRefresh(member, refresh);
-
-                return new ResponseEntity<>(new LoginResponse(loginRequest.getUsername(), access, refresh), HttpStatus.OK);
-            } else {
-
-                return new ResponseEntity<>("잘못된 정보입니다.", HttpStatus.OK);
-            }
+            return ApiResponse.fail(ErrorCode.DATA_NOT_FOUND.getStatus(), "로그인 정보가 잘못되었습니다.");
         }
     }
 
