@@ -32,9 +32,8 @@ public class SecurityConfig {
                 .cors(cors -> {}) // 단순하게 비활성화 (원하면 CORS 설정 메서드도 추가 가능)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/member/**").permitAll() // 로그인 등은 누구나 접근 가능
-//                        .requestMatchers("/data/**").permitAll()
-//                        .requestMatchers("/api/**").permitAll() // 일단 모든 요청이 로그인 필요 없이도 작동할 수 있도록 설정
+                        .requestMatchers("/member/**"
+                                ,"/swagger-ui/**","/v3/api-docs/**").permitAll() // 로그인 등은 누구나 접근 가능
                         .anyRequest().authenticated()           // 그 외는 인증 필요
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
