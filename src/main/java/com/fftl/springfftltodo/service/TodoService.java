@@ -22,12 +22,12 @@ public class TodoService {
         return todoRepository.save(new Todo(s, member));
     }
 
-    public List<TodoResponse> readAll(Member member){
-        List<Todo> todos = todoRepository.findAllByMember(member);
-        return todos.stream()
-                .map(TodoResponse::fromEntity)
-                .toList();
-    }
+//    public List<TodoResponse> readAll(Member member){
+//        List<Todo> todos = todoRepository.findAllByMember(member);
+//        return todos.stream()
+//                .map(TodoResponse::fromEntity)
+//                .toList();
+//    }
 
     public List<TodoResponse> readAllDay(Member member, LocalDate date){
         List<Todo> todos = todoRepository.findAllByMemberAndDate(member, date);

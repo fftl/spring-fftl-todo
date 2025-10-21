@@ -2,20 +2,15 @@ package com.fftl.springfftltodo.controller;
 
 import com.fftl.springfftltodo.Entity.Member;
 import com.fftl.springfftltodo.Entity.Todo;
+import com.fftl.springfftltodo.dto.ApiResponse;
 import com.fftl.springfftltodo.dto.TodoResponse;
-import com.fftl.springfftltodo.repository.TodoRepository;
 import com.fftl.springfftltodo.service.MemberService;
 import com.fftl.springfftltodo.service.TodoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.Authenticator;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,11 +29,10 @@ public class TodoController {
      * @return
      */
     @PostMapping()
-    public ResponseEntity<?> save(@RequestBody Map<String, String> map, @AuthenticationPrincipal Integer memberId){
+    public ApiResponse<?> save(@RequestBody Map<String, String> map, @AuthenticationPrincipal Integer memberId){
         Member member = memberService.readMemberId(memberId);
-        System.out.println(map.get("text"));
         Todo todo = todoService.create(member, map.get("text"));
-        return new ResponseEntity<>(todo, HttpStatus.OK);
+        return ApiResponse.success(todo);
     }
 
     /**
@@ -48,9 +42,9 @@ public class TodoController {
      * @return
      */
     @PostMapping("/check")
-    public ResponseEntity<?> checkTodo(@RequestBody Map<String, Integer> map, @AuthenticationPrincipal Integer memberId){
+    public ApiResponse<?> checkTodo(@RequestBody Map<String, Integer> map, @AuthenticationPrincipal Integer memberId){
         boolean check = todoService.checkTodo(map.get("todoId"));
-        return new ResponseEntity<>(check, HttpStatus.OK);
+        return ApiResponse.success(check);
     }
 
     /**
@@ -59,16 +53,22 @@ public class TodoController {
      * @return
      */
     @GetMapping()
-    public ResponseEntity<?> getAll(@AuthenticationPrincipal Integer memberId){
+    public ApiResponse<?> getAll(@AuthenticationPrincipal Integer memberId){
         Member member = memberService.readMemberId(memberId);
-        List<TodoResponse> todoResponses = todoService.readAll(member);
-        return new ResponseEntity<>(todoResponses, HttpStatus.OK);
+        List<TodoResponse> todoResponses = todoService.readAllDay(member, LocalDate.now());
+        return ApiResponse.success(todoResponses);
     }
 
+    /**
+     * 특정 날짜의 투두를 전부 가져오기
+     * @param memberId
+     * @param date
+     * @return
+     */
     @GetMapping("/day")
-    public ResponseEntity<?> getOneDay(@AuthenticationPrincipal Integer memberId, @RequestParam(name = "date") LocalDate date){
+    public ApiResponse<?> getOneDay(@AuthenticationPrincipal Integer memberId, @RequestParam(name = "date") LocalDate date){
         Member member = memberService.readMemberId(memberId);
         List<TodoResponse> todoResponses = todoService.readAllDay(member, date);
-        return new ResponseEntity<>(todoResponses, HttpStatus.OK);
+        return ApiResponse.success(todoResponses);
     }
 }
