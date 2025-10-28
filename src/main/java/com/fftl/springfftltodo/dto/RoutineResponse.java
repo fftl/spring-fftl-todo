@@ -6,5 +6,5 @@ import com.fftl.springfftltodo.Entity.Todo;
 import java.util.ArrayList;
 
 public record RoutineResponse (
-        Routine routine
+        String routineName, int routineId
 ){}

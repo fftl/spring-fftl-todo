@@ -32,7 +32,7 @@ public class TodoController {
     public ApiResponse<?> save(@RequestBody Map<String, String> map, @AuthenticationPrincipal Integer memberId){
         Member member = memberService.readMemberId(memberId);
         Todo todo = todoService.create(member, map.get("text"));
-        return ApiResponse.success(todo);
+        return ApiResponse.success(TodoResponse.fromEntity(todo));
     }
 
     /**
@@ -66,7 +66,7 @@ public class TodoController {
      * @return
      */
     @GetMapping("/day")
-    public ApiResponse<?> getOneDay(@AuthenticationPrincipal Integer memberId, @RequestParam(name = "date") LocalDate date){
+    public ApiResponse<?> getOneDay(@AuthenticationPrincipal Integer memberId, @RequestParam("date") LocalDate date){
         Member member = memberService.readMemberId(memberId);
         List<TodoResponse> todoResponses = todoService.readAllDay(member, date);
         return ApiResponse.success(todoResponses);

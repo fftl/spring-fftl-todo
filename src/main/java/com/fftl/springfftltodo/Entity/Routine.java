@@ -5,20 +5,29 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "routines")
 @Entity
 public class Routine {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int routineId;
 
     private String routineName;
-    private List<String> todoList;
+
+    @ElementCollection
+    @CollectionTable(
+            name = "routine_todo_list",
+            joinColumns = @JoinColumn(name = "routine_id")
+    )
+    @Column(name = "todo_item")
+    private List<String> todoList = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "member_id")

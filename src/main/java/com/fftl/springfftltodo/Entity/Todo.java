@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Table(name="todo", indexes = {
+@Table(name="todos", indexes = {
         @Index(name="idx__member__date", columnList = "member_id, date")
 })
 @Getter
@@ -18,16 +18,12 @@ import java.time.LocalDateTime;
 public class Todo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int todoId;
 
     private String text;
     private LocalDate date;
     private boolean isChecked;
-
-    @ManyToOne
-    @JoinColumn(name = "routine_id")
-    private Routine routine;
 
     @ManyToOne
     @JoinColumn(name = "member_id")

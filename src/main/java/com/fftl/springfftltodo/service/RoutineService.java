@@ -23,8 +23,11 @@ public class RoutineService {
     private final TodoRepository todoRepository;
 
     public RoutineResponse create(Member member, RoutineRequest request) {
-        Routine routine = new Routine(request.routineName(), request.todos(), member);
-        return new RoutineResponse(routine);
+        System.out.println(request);
+        Routine routine = routineRepository.save(new Routine(request.routineName(), request.todos(), member));
+
+        System.out.println("루틴 이름입니다 >>" +routine.getRoutineName());
+        return new RoutineResponse(routine.getRoutineName(), routine.getRoutineId());
     }
 
     public List<TodoResponse> createTodoes(Member member, int routineId) {

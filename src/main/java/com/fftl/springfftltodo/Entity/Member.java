@@ -14,11 +14,12 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name="members")
 @Entity
 public class Member implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int memberId;
 
     private String username;

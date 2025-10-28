@@ -65,6 +65,8 @@ public class MemberController {
 
             memberService.updateRefresh(member, refresh);
 
+            System.out.println(access);
+            System.out.println(refresh);
             return ApiResponse.success(new LoginResponse(loginRequest.getUsername(), access, refresh));
         } else {
 
