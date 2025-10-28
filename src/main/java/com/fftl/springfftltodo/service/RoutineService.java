@@ -41,6 +41,15 @@ public class RoutineService {
         return todoResponses;
     }
 
+    public List<RoutineResponse> readRoutine(Member member){
+        List<Routine> routines = routineRepository.findByMember(member);
+        List<RoutineResponse> routineResponses = new ArrayList<>();
+        for(Routine r : routines){
+            routineResponses.add(new RoutineResponse(r.getRoutineName(), r.getRoutineId()));
+        }
+        return routineResponses;
+    }
+
     public boolean delete(int routineId){
         Routine routine = routineRepository.findById(routineId).orElse(null);
 
